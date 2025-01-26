@@ -1,3 +1,10 @@
+#ifdef QT_CORE_LIB
+#include <QWindow>
+    #if defined(VK_USE_PLATFORM_XLIB_KHR) || defined(VK_USE_PLATFORM_XCB_KHR)
+    #include <QX11Info>
+    #endif
+#endif // QT_CORE_LIB
+
 #include "vulkanApp.h"
 #include "utilities.h"
 
@@ -57,7 +64,9 @@ void VulkanApp::onPaint()
     }
     if (!vSync)
     {   // Cap fps
+    #if !defined(__MINGW32__)
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    #endif
     }
     ++frameIndex;
 }
@@ -201,6 +210,17 @@ void VulkanApp::createLogicalDevice()
 
 void VulkanApp::createSurface()
 {
+#if defined(QT_CORE_LIB)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
+    HWND hWnd = (HWND)window->winId();
+#elif defined(VK_USE_PLATFORM_XLIB_KHR)
+    Display *dpy = QX11Info::display();
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+    xcb_connection_t *connection = QX11Info::connection();
+#endif
+#endif // QT_CORE_LIB
+
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     surface = std::make_unique<magma::Win32Surface>(instance, hInstance, hWnd);
 #elif defined(VK_USE_PLATFORM_XLIB_KHR)
@@ -218,9 +238,15 @@ void VulkanApp::createSwapchain()
     // Get surface caps
     VkSurfaceCapabilitiesKHR surfaceCaps;
     surfaceCaps = physicalDevice->getSurfaceCapabilities(surface);
-    assert(surfaceCaps.currentExtent.width == width);
-    assert(surfaceCaps.currentExtent.height == height);
-    // Find supported transform flags
+    if (surfaceCaps.currentExtent.width != width ||
+        surfaceCaps.currentExtent.height != height)
+    {   // This may differs because of DPI scaling
+        std::cout << "Surface extents: " <<
+            surfaceCaps.currentExtent.width << ", " <<
+            surfaceCaps.currentExtent.height << std::endl;
+        width = surfaceCaps.currentExtent.width;
+        height = surfaceCaps.currentExtent.height;
+    }
     VkSurfaceTransformFlagBitsKHR preTransform;
     if (surfaceCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
         preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;

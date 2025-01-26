@@ -1,4 +1,5 @@
 .vs/
+build/
 Debug/
 Release/
 x64/
@@ -16,4 +17,4 @@ x64/
 
 # GCC objects and dependency files
 *.o
-*.d
+*.

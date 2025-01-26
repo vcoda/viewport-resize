@@ -2,12 +2,6 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-#define WIN32_LEAN_AND_MEAN
-#define NOGDI
-#define NOMINMAX
-#include <windows.h>
-#endif
 #include "platform.h"
 #include "magma/src/core/pch.h"
 
@@ -16,7 +10,7 @@ class IApplication : public AlignAs<16>,
 {
 public:
     virtual void setWindowCaption(const std::tstring& caption) = 0;
-    virtual void show() const = 0;
+    virtual void show() = 0;
     virtual void run() = 0;
     virtual void close() = 0;
     virtual void onIdle() = 0;
@@ -41,7 +35,7 @@ enum AppKey { Null = '\0', Tab = '\t', Enter = '\r', Escape = '\033', Space = ' 
 
 struct AppEntry
 {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#if defined(_WIN32) && !defined(QT_CORE_LIB)
     HINSTANCE hInstance;
     HINSTANCE hPrevInstance;
     LPSTR lpCmdLine;
@@ -49,20 +43,22 @@ struct AppEntry
 #else
     int argc;
     char **argv;
-#endif
+#endif // _WIN32 || !QT_CORE_LIB
 };
 
 class BaseApp : public IApplication
 {
-protected:
-    BaseApp(const std::tstring& caption, uint32_t width, uint32_t height):
-        caption(caption), width(width), height(height) {}
-    virtual void close() override { quit = true; }
+public:
     virtual void onKeyDown(char key, int /* repeat */, uint32_t /* flags */) override
     {
         if (AppKey::Escape == key)
             close();
     }
+
+protected:
+    BaseApp(const std::tstring& caption, uint32_t width, uint32_t height):
+        caption(caption), width(width), height(height) {}
+    virtual void close() override { quit = true; }
 
 protected:
     std::tstring caption;

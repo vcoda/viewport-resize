@@ -15,12 +15,12 @@ std::string format(const char *what,
 {
     std::ostringstream oss;
     oss << what;
-#ifdef _DEBUG
+#ifdef MAGMA_DEBUG
     if (where.file_name())
         oss << std::endl << std::endl <<
         "file: " << where.file_name() << std::endl <<
         "line: " << where.line();
-#endif // _DEBUG
+#endif // MAGMA_DEBUG
     return oss.str();
 }
 
@@ -30,12 +30,12 @@ std::string formatError(Error error, const char *what,
 {
     std::ostringstream oss;
     oss << error << std::endl << what;
-#ifdef _DEBUG
+#ifdef MAGMA_DEBUG
     if (where.file_name())
         oss << std::endl << std::endl <<
         "file: " << where.file_name() << std::endl <<
         "line: " << where.line();
-#endif // _DEBUG
+#endif // MAGMA_DEBUG
     return oss.str();
 }
 
@@ -90,14 +90,14 @@ catch (const std::exception& exc)
 }
 #endif // MAGMA_NO_EXCEPTIONS
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(QT_CORE_LIB)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 #else
 int main(int argc, char *argv[])
 #endif
 {
     AppEntry entry;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(QT_CORE_LIB)
     entry.hInstance = hInstance;
     entry.hPrevInstance = hPrevInstance;
     entry.lpCmdLine = pCmdLine;
