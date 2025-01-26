@@ -192,6 +192,11 @@ void XlibApp::handleEvent(const XEvent& event)
             onPaint();
         }
         break;
+    case ConfigureNotify:
+        {
+            onResize(event.xconfigure.width, event.xconfigure.height);
+        }
+        break;
     case ClientMessage:
         if (event.xclient.message_type == protocols)
         {
