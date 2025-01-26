@@ -24,7 +24,7 @@ XcbApp::XcbApp(const AppEntry& entry, const std::tstring& caption, uint32_t widt
     values[1] = XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
                 XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
                 XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_EXPOSURE |
-                XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_RESIZE_REDIRECT;
+                XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     // Create window
     window = xcb_generate_id(connection);
@@ -198,7 +198,8 @@ void XcbApp::handleEvent(const xcb_generic_event_t *event)
     case XCB_CONFIGURE_NOTIFY:
         {
             const xcb_configure_notify_event_t *configure = reinterpret_cast<const xcb_configure_notify_event_t *>(event);
-            onResize(configure->width, configure->height);
+            if ((configure->width != width) || (configure->height != height))
+                onResize(configure->width, configure->height);
         }
         break;
     case XCB_CLIENT_MESSAGE:

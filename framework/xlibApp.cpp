@@ -26,7 +26,7 @@ XlibApp::XlibApp(const AppEntry& entry, const std::tstring& caption, uint32_t wi
     windowAttribs.event_mask = KeyPressMask | KeyReleaseMask |
                                ButtonPressMask | ButtonReleaseMask |
                                PointerMotionMask | ExposureMask |
-                               StructureNotifyMask | ResizeRedirectMask;
+                               StructureNotifyMask;
     windowAttribs.colormap = cm;
 
     // Create window
@@ -188,7 +188,8 @@ void XlibApp::handleEvent(const XEvent& event)
         break;
     case ConfigureNotify:
         {
-            onResize(event.xconfigure.width, event.xconfigure.height);
+            if ((event.xconfigure.width != width) || (event.xconfigure.height != height))
+                onResize(event.xconfigure.width, event.xconfigure.height);
         }
         break;
     case ClientMessage:
