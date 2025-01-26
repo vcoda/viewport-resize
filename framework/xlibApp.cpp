@@ -25,7 +25,8 @@ XlibApp::XlibApp(const AppEntry& entry, const std::tstring& caption, uint32_t wi
     windowAttribs.border_pixel = 0;
     windowAttribs.event_mask = KeyPressMask | KeyReleaseMask |
                                ButtonPressMask | ButtonReleaseMask |
-                               PointerMotionMask | ExposureMask;
+                               PointerMotionMask | ExposureMask |
+                               StructureNotifyMask | ResizeRedirectMask;
     windowAttribs.colormap = cm;
 
     // Create window
@@ -42,16 +43,9 @@ XlibApp::XlibApp(const AppEntry& entry, const std::tstring& caption, uint32_t wi
     if (!window)
         throw std::runtime_error("failed to create X window");
 
-    // Set fixed window size
-    XSizeHints hints = {};
-    hints.flags = PMinSize | PMaxSize;
-    hints.min_width = hints.max_width = width;
-    hints.min_height = hints.max_height = height;
-
     XSetStandardProperties(dpy, window,
         caption.c_str(), caption.c_str(), None,
-        entry.argv, entry.argc,
-        &hints);
+        entry.argv, entry.argc, nullptr);
 
     // Catch window close
     deleteWindow = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
@@ -70,7 +64,7 @@ void XlibApp::setWindowCaption(const std::tstring& caption)
     XStoreName(dpy, window, caption.c_str());
 }
 
-void XlibApp::show() const
+void XlibApp::show()
 {
     const Screen *screen = DefaultScreenOfDisplay(dpy);
     XWindowChanges changes = {};
