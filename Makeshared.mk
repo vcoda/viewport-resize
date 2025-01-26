@@ -17,7 +17,7 @@ else
 	MAGMA=magma
 	QUADRIC=quadric
 endif
-LDFLAGS=$(LIB_DIR) -l$(MAGMA) -lpthread -lX11 -lvulkan
+LDFLAGS=$(LIB_DIR) -l$(MAGMA) -lpthread -lxcb -lvulkan
 
 FRAMEWORK=../framework
 FRAMEWORK_OBJS= \
@@ -25,7 +25,7 @@ FRAMEWORK_OBJS= \
 	$(FRAMEWORK)/main.o \
 	$(FRAMEWORK)/utilities.o \
 	$(FRAMEWORK)/vulkanApp.o \
-    $(FRAMEWORK)/xlibApp.o
+    $(FRAMEWORK)/xcbApp.o
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
