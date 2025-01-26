@@ -202,6 +202,12 @@ void XcbApp::handleEvent(const xcb_generic_event_t *event)
             onPaint();
         }
         break;
+    case XCB_CONFIGURE_NOTIFY:
+        {
+            const xcb_configure_notify_event_t *configure = reinterpret_cast<xcb_configure_notify_event_t *>(event);
+            onResize(configure->width, configure->height);
+        }
+        break;
     case XCB_CLIENT_MESSAGE:
         {
             const xcb_client_message_event_t *clientMsg = reinterpret_cast<const xcb_client_message_event_t *>(event);
