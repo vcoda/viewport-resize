@@ -30,6 +30,23 @@ win32 {
     QMAKE_CXXFLAGS += -DVK_USE_PLATFORM_IOS_MVK
 }
 
+GLSLC=$(VULKAN_SDK)/bin/glslangValidator
+
+defineReplace(compileShader) {
+    GLSL_FILE = $$PWD/$$1
+    SPIRV_FILE = $$PWD/$$2
+    !exists($$GLSL_FILE): error(Missing GLSL shader file $$GLSL_FILE)
+    !exists($$SPIRV_FILE): return($$GLSLC -V $$GLSL_FILE -o $$SPIRV_FILE$$escape_expand(\\n\\t))
+    return
+}
+
+compile_shaders.target = compile_shaders
+compile_shaders.commands += $$compileShader(transform.vert, transform.o)
+compile_shaders.commands += $$compileShader(frontFace.frag, frontFace.o)
+
+QMAKE_EXTRA_TARGETS = compile_shaders
+PRE_TARGETDEPS = compile_shaders
+
 LIBS += -L$(VULKAN_SDK)/Lib
 CONFIG(debug, debug|release) {
     LIBS += -L../framework/debug
