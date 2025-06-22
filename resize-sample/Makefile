@@ -1,6 +1,9 @@
 include ../Makeshared.mk
 
-default: viewport-resize shaders
+default: magma viewport-resize shaders
+
+magma:
+	$(MAKE) -C $(MAGMA)
 
 viewport-resize: viewport-resize.o $(FRAMEWORK_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -8,6 +11,7 @@ viewport-resize: viewport-resize.o $(FRAMEWORK_OBJS)
 shaders: transform.o frontFace.o
 
 clean:
+	$(MAKE) -C $(MAGMA) clean
 	@find . -iregex '.*\.\(d\|o\)' -delete
 	@find $(FRAMEWORK) -iregex '.*\.\(d\|o\)' -delete
 	@rm -rf viewport-resize

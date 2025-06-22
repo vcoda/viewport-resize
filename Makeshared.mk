@@ -2,22 +2,27 @@ CC=g++
 GLSLC=$(VULKAN_SDK)/bin/glslangValidator
 
 PLATFORM=VK_USE_PLATFORM_XCB_KHR
-THIRD_PARTY=../third-party
-INCLUDE_DIR=-I$(VULKAN_SDK)/include -I$(THIRD_PARTY) -I$(THIRD_PARTY)/rapid
-LIB_DIR=-L$(VULKAN_SDK)/lib -L$(THIRD_PARTY)/magma
+
+FRAMEWORK=../framework
+DEPS=../third-party
+MAGMA=$(DEPS)/magma
+BOOST_PFR_DIR=$(MAGMA)/src/third-party/pfr
+
+INCLUDE_DIR=-I$(VULKAN_SDK)/include -I$(DEPS) -I$(BOOST_PFR_DIR)/include -I$(DEPS)/rapid
+LIB_DIR=-L$(VULKAN_SDK)/lib -L$(DEPS)/magma
 
 BASE_CFLAGS=-std=c++17 -m64 -msse4 -MD -D$(PLATFORM) $(INCLUDE_DIR)
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
 	CFLAGS=$(BASE_CFLAGS) -O0 -g -D_DEBUG
-	MAGMA=magmad
+	MAGMA_LIB=magmad
 else
 	CFLAGS=$(BASE_CFLAGS) -O3 -DNDEBUG
-	MAGMA=magma
+	MAGMA_LIB=magma
 endif
-LDFLAGS=$(LIB_DIR) -l$(MAGMA) -lxcb -lvulkan
+LDFLAGS=$(LIB_DIR) -l$(MAGMA_LIB) -lxcb -lvulkan
 
-FRAMEWORK=../framework
+
 FRAMEWORK_OBJS= \
 	$(FRAMEWORK)/graphicsPipeline.o \
 	$(FRAMEWORK)/main.o \
